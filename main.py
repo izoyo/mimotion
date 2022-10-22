@@ -308,10 +308,10 @@ def get_time():
     """
     获取时间戳
     """
-    url = 'http://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp'
+    url = 'http://api.bilibili.com/x/report/click/now'
     response = requests.get(url, headers=headers).json()
-    t = response['data']['t']
-    return t
+    t = response['data']['now']
+    return f'{t}000'
 
 
 def get_app_token(login_token):
