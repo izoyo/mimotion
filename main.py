@@ -297,7 +297,21 @@ def main(_user, _passwd, _step):
 
     data = f'userid={userid}&last_sync_data_time=1597306380&device_type=0&last_deviceid=DA932FFFFE8816E7&data_json={quote(json.dumps(data_json))}'
 
-    response = requests.post(url, data=data, headers=head).json()
+    retry_count = 3
+    retry_delay = 5  # seconds
+    
+    for i in range(retry_count):
+        try:
+            response = requests.post(url, data=data, headers=head).json()
+            break  # 如果请求成功，跳出循环
+        except requests.exceptions.RequestException as e:
+            print(f"请求失败，错误信息：{e}")
+            if i < retry_count - 1:  # 如果不是最后一次重试，等待一段时间后再次尝试
+                print(f"等待 {retry_delay} 秒后重试...")
+                time.sleep(retry_delay)
+    else:
+        raise RetryError("重试多次后仍然失败")  # 如果重试次数用尽，抛出自定义异常
+        
     # print(response)
     result = f"{_user[:4]}****{_user[-4:]}: [{now}] 修改步数（{_step}）" + response['message']
     print(result)
